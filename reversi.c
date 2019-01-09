@@ -1,25 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define row 8
-#define column 8
-#define black 1
-#define white 2
+#define Row 8
+#define Column 8
+#define Black 1
+#define White 2
+#define MaxEval  1000
+#define MinEval -1000
 
-void defineTable(int table[row][column],char *argv[]);
-void printTable(int table[row][column]);
 
+void defineTable(int table[Row][Column],char *argv[]);
+void printTable(int table[Row][Column]);
+void printtable1D(int table[]);
+void flip(int table[],int square,int jump,int player);
+void doflip(int table[], int square , int player);
 //////////////////////// Valid Moves ///////////////////////////////////
 int isPair(int square, int table[], int jump, int player);
-
 void validSquares(int table[], int arrayOfValids[], int player);
 
-/////////////////
+/////////////////////// MiniMax ////////////////////////////////////////
+// int minimax(position , depth , isMaxPly);
+// int evalPosition(position);
+// int canMove(position);
 
 
 int main(int argc,char *argv[])
 {
-    int table[row][column]={
+    int table[Row][Column]={
         {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
 
         {0 ,0 ,0 ,0 ,0 ,0 ,0 ,0},
@@ -55,20 +62,21 @@ int main(int argc,char *argv[])
         0 ,0 ,0 ,0 ,0 ,0 ,0 ,0
     };
 
-    int arrayOfValids[row*column];
+    int arrayOfValids[Row*Column];
 
 
 
     // int const Player= argv[9][0]-48;
     // defineTable(table,argv);
     validSquares(table1D,arrayOfValids,1);
-    printTable(table);
     
     int i =0;
     while(arrayOfValids[i]!=-1){
         printf("%d\n",arrayOfValids[i]);
         i++;
     }
+ 
+    printtable1D(table1D);
 
 
 
@@ -87,7 +95,7 @@ int main(int argc,char *argv[])
     return 0;
 }
 
-void defineTable(int table[row][column],char *argv[])
+void defineTable(int table[Row][Column],char *argv[])
 {
     for(int i=0;i<8;i++)
     {
@@ -99,15 +107,49 @@ void defineTable(int table[row][column],char *argv[])
 
 }
 
-void printTable(int table[row][column]){
+// void printTable(int table[Row][Column]){         //  delete it !
+//     puts("");
+//     for(int i=0;i<Row;i++){
+//         for(int j=0;j<Column;j++){
+//             printf("%d ",table[i][j]);
+//         }
+//         puts("");
+//     }
+
+// }
+
+void printtable1D(int table[]){
     puts("");
-    for(int i=0;i<row;i++){
-        for(int j=0;j<column;j++){
-            printf("%d ",table[i][j]);
+    for(int i=0;i<Row;i++){
+        for(int j=0;j<Column;j++){
+            printf("%d ",table[i*8+j]);
         }
         puts("");
     }
 
+}
+
+void flip(int table[],int square,int jump,int player){
+    if(isPair(square,table,jump,player)){
+        table[square]=player;
+        square += jump;
+        while(table[square] == 3-player){
+            table[square] = player;
+            square += jump;
+        }
+    }
+    
+}
+
+void doflip(int table[], int square , int player){
+    flip(table,square,-9,player);
+    flip(table,square,-8,player);
+    flip(table,square,-7,player);
+    flip(table,square,-1,player);
+    flip(table,square,+1,player);
+    flip(table,square,+7,player);
+    flip(table,square,+8,player);
+    flip(table,square,+9,player);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -125,7 +167,7 @@ int isPair(int square, int table[], int jump, int player){
 
 void validSquares(int table[],int arrayOfValids[],int player){
     int counter = 0;
-    for(int i =0;i<row*column;i++){
+    for(int i =0;i<Row*Column;i++){
         if(isPair(i,table,-9,player)==1){
             arrayOfValids[counter]=i;
             counter ++;
@@ -160,3 +202,24 @@ void validSquares(int table[],int arrayOfValids[],int player){
         // }
     }
 }
+
+///////////////////////////////////////////////////////////////////////////
+/////////////////////////////// MiniMax ///////////////////////////////////
+
+// int minimax(position , depth , isMaxPly){
+//     if(depth == 0 || !canMove() ){
+//         return evalPosition(position);
+//     }
+
+//     if(isMaxPly){
+
+//     }
+// }
+
+// int evalPosition(position){
+
+// }
+
+// int canMove(position){
+
+// }
