@@ -210,22 +210,36 @@ int minimax(int table[] , int depth ,int player,int isMax,int isOver){
     if(depth == 0)  return eval(table,player);
     int *arrayOfValids = (int *)malloc(sizeof(int)*64);
     int numOfValidSqrs = validSquares(table,arrayOfValids,player);
-    if(numOfValidSqrs == 0 && isOver == 0) return minimax(table,depth,3-player,!isMax,1);
+    if(numOfValidSqrs == 0 && isOver == 0) return minimax(table,depth,player,!isMax,1);
     if(numOfValidSqrs == 0 && isOver == 1) return eval(table,player);
-    int bestEval=0;
-    for(int i=0;i<numOfValidSqrs;i++){
-        int table2[Size];
-        copyTable(table,table2);
-        doFlip(table2,arrayOfValids[i],player);
-        int temp = minimax(table2,depth-1,3-player,!isMax,0);
-        if(isMax && temp>bestEval){
-            bestEval = temp;
-        }else if(!isMax && temp<bestEval){
-            bestEval = temp;
+
+    if(isMax){
+        int bestEval=-20000;
+        for(int i=0;i<numOfValidSqrs;i++){
+            int table2[Size];
+            copyTable(table,table2);
+            doFlip(table2,arrayOfValids[i],player);
+            int temp = minimax(table2,depth-1,player,!isMax,0);
+            if(temp>bestEval){
+                bestEval = temp;
+            }
         }
+        return bestEval;
+    }else{
+        int bestEval=20000;
+        for(int i=0;i<numOfValidSqrs;i++){
+            int table2[Size];
+            copyTable(table,table2);
+            doFlip(table2,arrayOfValids[i],player);
+            int temp = minimax(table2,depth-1,player,isMax,0);
+            if(temp<bestEval){
+                bestEval = temp;
+            }
+        }
+        return bestEval;
     }
+    
     free(arrayOfValids);
-    return bestEval;
 }
 
 int eval(const int table[Size],int player)
