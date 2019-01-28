@@ -50,56 +50,56 @@ int main(int argc,char *argv[]){
 
     int table[] ={
     //  0   1  2  3  4  5  6  7  8   9
-
         0,  0 ,0 ,0 ,0 ,0 ,0 ,0 ,0,  0, //0
 
         0,  0 ,0 ,0 ,0 ,0 ,0 ,0 ,0,  0, //1
 
-        0,  0 ,0 ,0 ,1 ,0 ,0 ,0 ,0,  0, //2
+        0,  0 ,0 ,0 ,0 ,0 ,0 ,0 ,0,  0, //2
 
-        0,  0 ,0 ,0 ,1 ,1 ,0 ,0 ,0,  0, //3
+        0,  0 ,0 ,0 ,2 ,1 ,0 ,0 ,0,  0, //3
 
-        0,  0 ,0 ,2 ,2 ,2 ,0 ,0 ,0,  0, //4
+        0,  0 ,0 ,0 ,1 ,2 ,0 ,0 ,0,  0, //4
 
         0,  0 ,0 ,0 ,0 ,0 ,0 ,0 ,0,  0, //5
 
         0,  0 ,0 ,0 ,0 ,0 ,0 ,0 ,0,  0, //6
 
         0,  0 ,0 ,0 ,0 ,0 ,0 ,0 ,0,  0  //7
-        
     };
-
 
     int arrayOfValids[row*column];
 
     // int const Player= argv[9][0]-48;
     // defineTable(table,argv);
- 
-    int d = minimaxFirstlvl(table,arrayOfValids,1,8);
-    printf("%d \n",d);
-
+    // int temp = validSquares(table,arrayOfValids,1);
+    int minimax = minimaxFirstlvl(table,arrayOfValids,1,9);
+    printf("%d %d",minimax%10-1,minimax/10);
     printTable(table);
-
-
+    // for(int i=0;i<temp;i++){
+    //     printf("%d\n",arrayOfValids[i]);
+    //     int table2[Size];
+    //     copyTable(table,table2);
+    //     doFlip(table2,arrayOfValids[i],1);
+    //     printTable(table2);
+    // }
+    // printTable(table);
     return 0;
 }
 
 
 ///////////////////////////////// Table ///////////////////////////////////////
 
-// void defineTable(int table[row][column],char *argv[])
-// {
-//     for(int i=0;i<8;i++)
-//     {
-//         for(int j=0;j<8;j++)
-//         {
-//             table[i][j]= argv[i+1][j] - 48 ;
-//         }
-//     }
+void defineTable(int table[Size],char *argv[]){
+    for(int i=0;i<8;i++){
+        for(int j=1;j<9;j++){
+            table[i*10+j]= argv[i+1][j-1] - 48 ;
+        }
+    }
 
-// }
+}
 
 void printTable(int table[]){
+    puts("");
     printf("%s","   ");
     for(int i=0;i<column;i++)   printf("%d ",i);
     puts("");
@@ -121,7 +121,7 @@ void copyTable(int table[Size],int table2[Size]){
 /////////////////////////////// Valid Moves Function /////////////////////////////
 
 int isPair(int square, int table[], int jump, int player){
-
+    if(table[square]!= 0)   return 0;
     int nextsqr = square + jump;
     do{
         square += jump;
@@ -168,10 +168,11 @@ int validSquares(int table[],int arrayOfValids[],int player){
 
 void flip(int table[],int sqr,int jump,int player){
     if(isPair(sqr,table,jump,player)){
-        do{
+        sqr += jump;
+        while(table[sqr] == 3-player){
             table[sqr]=player;
             sqr += jump;
-        }while(table[sqr] == 3-player);
+        };
     }
 }
 
@@ -180,17 +181,18 @@ void doFlip(int table[],int sqr,int player){
     flip(table,sqr,-10,player);
     flip(table,sqr,-9,player);
     flip(table,sqr,-1,player);
-    flip(table,sqr,1,player);
-    flip(table,sqr,9,player);
-    flip(table,sqr,10,player);
-    flip(table,sqr,11,player);
+    flip(table,sqr,+1,player);
+    flip(table,sqr,+9,player);
+    flip(table,sqr,+10,player);
+    flip(table,sqr,+11,player);
+    table[sqr]=player;
 }
 
 /////////////////////////////////// MiniMax /////////////////////////////////////
 
 int minimaxFirstlvl(int table[],int arrayOfValids[],int player,int depth){
     int numOfValidSqrs = validSquares(table,arrayOfValids,player);
-    int bestEval=-10000 , bestSqr;
+    int bestEval=-2000 , bestSqr;
     int alpha=-10000 ,beta = 10000;
     if(numOfValidSqrs==0)   return 0;
     for(int i=0;i<numOfValidSqrs;i++){
@@ -198,6 +200,7 @@ int minimaxFirstlvl(int table[],int arrayOfValids[],int player,int depth){
         copyTable(table,table2);
         doFlip(table2,arrayOfValids[i],player);
         int temp =minimax(table2,depth-1,player,0,0,alpha,beta);
+        printf("%d\n",temp);
         if(temp>bestEval){
             bestSqr = i;
             bestEval = temp;
@@ -213,15 +216,15 @@ int minimax(int table[] , int depth ,int player,int isMax,int isOver,int alpha,i
         int numOfValidSqrs = validSquares(table,arrayOfValids,player);
         if(numOfValidSqrs == 0 && isOver == 0) return minimax(table,depth,player,0,1,alpha,beta);
         if(numOfValidSqrs == 0 && isOver == 1) return eval(table,player);
-        int bestEval=-20000;
+        int bestEval=-2000;
         for(int i=0;i<numOfValidSqrs;i++){
             int table2[Size];
             copyTable(table,table2);
             doFlip(table2,arrayOfValids[i],player);
-            int temp = minimax(table2,depth-1,player,!isMax,0,alpha,beta);
+            int temp = minimax(table2,depth-1,player,0,0,alpha,beta);
             bestEval = bestEval<temp ? temp : bestEval;
-            alpha = alpha>bestEval ? alpha : bestEval;
-            if(beta <= alpha)   break;
+            // alpha = alpha>bestEval ? alpha : bestEval;
+            // if(beta <= alpha)   break;
         }
         return bestEval;
         free(arrayOfValids);
@@ -230,15 +233,15 @@ int minimax(int table[] , int depth ,int player,int isMax,int isOver,int alpha,i
         int numOfValidSqrs = validSquares(table,arrayOfValids,3-player);
         if(numOfValidSqrs == 0 && isOver == 0) return minimax(table,depth,player,1,1,alpha,beta);
         if(numOfValidSqrs == 0 && isOver == 1) return eval(table,player);
-        int bestEval=20000;
+        int bestEval=2000;
         for(int i=0;i<numOfValidSqrs;i++){
             int table2[Size];
             copyTable(table,table2);
             doFlip(table2,arrayOfValids[i],3-player);
             int temp = minimax(table2,depth-1,player,1,0,alpha,beta);
             bestEval = bestEval>temp ? temp : bestEval;
-            beta = beta<bestEval ? beta : bestEval;
-            if(beta <= alpha)   break;
+            // beta = beta<bestEval ? beta : bestEval;
+            // if(beta <= alpha)   break;
         }
         free(arrayOfValids);
         return bestEval;
@@ -246,13 +249,10 @@ int minimax(int table[] , int depth ,int player,int isMax,int isOver,int alpha,i
     
 }
 
-int eval(const int table[Size],int player)
-{
+int eval(const int table[Size],int player){
     int count=0;
-    for(int i=0;i<row;i++)
-    {
-        for(int j=1;j<column+1;j++)
-        {
+    for(int i=0;i<row;i++){
+        for(int j=1;j<column+1;j++){
             if (table[i*10+j]==player)
                 count+=Weight[i*10+j];
             else if(table[i*10+j]==3-player)
