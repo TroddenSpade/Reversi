@@ -1,1 +1,1 @@
-# Reversi-minimax-opening-algorithm
+# Reversi
